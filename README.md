@@ -5,12 +5,14 @@ A modern system for managing demographic information and cultural center facilit
 ## 🚀 Key Features
 
 ### 👨‍💼 Admin
+
 - **Demographics:** Manage households, residents, and district classifications.
 - **Facilities:** Manage 3 cultural center buildings including mapping.
 - **Approvals:** Review and approve user requests and facility bookings.
 - **Dashboard:** Comprehensive statistics and overview.
 
 ### 👤 User
+
 - **Personal Info:** View own household details.
 - **Requests:** Submit requests for information updates or resident changes.
 - **Bookings:** Book cultural centers (public/private modes) and check availability.
@@ -26,33 +28,39 @@ A modern system for managing demographic information and cultural center facilit
 ## 📦 Installation
 
 1. **Clone the repository**
+
    ```bash
-   git clone https://github.com/natsusuke0215/Citizen-Management.git
+   git clone https://github.com/NMHung2005/citizen-management.git
    cd Citizen-Management
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Setup Database**
+
    ```bash
    npx prisma db push
    ```
 
 4. **Environment Setup**
    Create a `.env` file:
+
    ```env
    JWT_SECRET=your-secret-key-here
    DATABASE_URL="file:./prisma/dev.db"
    ```
 
 5. **Seed Data**
+
    ```bash
    npm run db:seed
    ```
-   *Note: If updating from hashed passwords, run `npx tsx scripts/update-passwords-to-plaintext.ts`*
+
+   _Note: If updating from hashed passwords, run `npx tsx scripts/update-passwords-to-plaintext.ts`_
 
 6. **Run Application**
    ```bash
@@ -61,10 +69,12 @@ A modern system for managing demographic information and cultural center facilit
    Access at `http://localhost:3000`
 
 ## 🗄️ Core Database Entities
+
 - **User:** System users (Admin/User)
 - **District/Household/Person:** Demographic hierarchy
 - **CulturalCenter/Booking:** Facility management
 - **Request/Notification:** User interactions
 
 ## 📄 License
+
 MIT License
