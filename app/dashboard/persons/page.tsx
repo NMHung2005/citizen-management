@@ -1,5 +1,7 @@
 'use client'
 
+import type { Person } from './shared/types'
+
 import { useState, useEffect } from 'react'
 import { Plus, Search, Users } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -9,26 +11,6 @@ import PaginationControls from './shared/components/PaginationControls'
 import PersonGrid from './shared/components/PersonGrid'
 import AddPersonModal from './shared/components/AddPersonModal'
 import ChangePersonModal from './shared/components/ChangePersonModal'
-
-interface Person {
-  id: string
-  fullName: string
-  dateOfBirth: string
-  gender: string
-  idNumber: string | null
-  relationship: string | null
-  status: string
-  household: {
-    id: string
-    householdId: string
-    address: string
-    district: {
-      id: string
-      name: string
-    }
-  }
-  createdAt: string
-}
 
 export default function PersonsPage() {
   const [persons, setPersons] = useState<Person[]>([])

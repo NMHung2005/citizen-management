@@ -80,7 +80,7 @@ export default function AudioPlayer({
       // Audio is already playing from previous page, sync state
       setIsPlaying(true)
       hasInteractedRef.current = true
-      audioManager.setCurrentPlaying(storageKey)
+      audioManager?.setCurrentPlaying(storageKey)
     } else {
       // Auto-play by default
       if (savedPlaying) {
@@ -89,7 +89,7 @@ export default function AudioPlayer({
         if (playPromise !== undefined) {
           playPromise
             .then(() => {
-              audioManager.setCurrentPlaying(storageKey)
+              audioManager?.setCurrentPlaying(storageKey)
               setIsPlaying(true)
               hasInteractedRef.current = true
             })
@@ -101,7 +101,7 @@ export default function AudioPlayer({
                 if (!hasInteractedRef.current && savedPlaying) {
                   audio.play()
                     .then(() => {
-                      audioManager.setCurrentPlaying(storageKey)
+                      audioManager?.setCurrentPlaying(storageKey)
                       setIsPlaying(true)
                       hasInteractedRef.current = true
                     })
@@ -157,7 +157,7 @@ export default function AudioPlayer({
       audioRef.current.play()
         .then(() => {
           if (audioManager) {
-            audioManager.setCurrentPlaying(storageKey)
+            audioManager?.setCurrentPlaying(storageKey)
           }
         })
         .catch(() => {
@@ -189,7 +189,7 @@ export default function AudioPlayer({
       audioRef.current.play()
         .then(() => {
           if (audioManager) {
-            audioManager.setCurrentPlaying(storageKey)
+            audioManager?.setCurrentPlaying(storageKey)
           }
         })
         .catch(() => {

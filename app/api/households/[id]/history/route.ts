@@ -1,3 +1,4 @@
+import { requireUser, RESIDENT_ROLES } from '@/lib/api-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
@@ -7,6 +8,9 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const authorization = await requireUser(request, RESIDENT_ROLES)
+    if (authorization.error) return authorization.error
+
     // Check if household exists
     const household = await prisma.household.findUnique({
       where: { id: params.id }

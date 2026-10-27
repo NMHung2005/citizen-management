@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { Booking } from '../../types'
+import { Booking } from '../types'
 
 export default function BookingHistoryPage() {
   const router = useRouter()

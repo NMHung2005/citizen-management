@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken, verifyPassword } from '@/lib/auth'
+import { verifyToken, verifyPassword, hashPassword } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
 interface ChangePasswordRequest {
@@ -56,24 +56,24 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    // Verify current password (plain text comparison)
-    if (!verifyPassword(currentPassword, userData.password)) {
+    // Verify the current password
+    if (!await verifyPassword(currentPassword, userData.password)) {
       return NextResponse.json(
         { message: 'Mật khẩu hiện tại không đúng' },
         { status: 401 }
       )
     }
 
-    // Update password (plain text)
+    // Store the new password as a bcrypt hash
     const updatedUser = await prisma.user.update({
       where: { id: user.id },
-      data: { password: newPassword },
+      data: { password: await hashPassword(newPassword) },
       select: {
         id: true,
         email: true,
         name: true,
         role: true,
-        householdId: true,
+
         createdAt: true,
         updatedAt: true
       }

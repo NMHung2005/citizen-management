@@ -103,7 +103,7 @@ export default function PersonFormFields({ formData, setFormData, showRegistrati
           placeholder='Nhập địa chỉ thường trú trước đây, nếu là con mới sinh có thể ghi "mới sinh"'
         />
         <p className="mt-1 text-xs text-gray-500">
-          Nếu gia đình sinh thêm con tại địa chỉ hiện tại, bạn có thể ghi <span className="italic">"mới sinh"</span>.
+          Nếu gia đình sinh thêm con tại địa chỉ hiện tại, bạn có thể ghi <span className="italic">&quot;mới sinh&quot;</span>.
         </p>
       </div>
 

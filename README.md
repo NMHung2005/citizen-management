@@ -50,8 +50,8 @@ A modern system for managing demographic information and cultural center facilit
    Create a `.env` file:
 
    ```env
-   JWT_SECRET=your-secret-key-here
-   DATABASE_URL="file:./prisma/dev.db"
+   JWT_SECRET=<a-random-secret-with-at-least-32-characters>
+   DATABASE_URL="file:./dev.db"
    ```
 
 5. **Seed Data**
@@ -60,7 +60,10 @@ A modern system for managing demographic information and cultural center facilit
    npm run db:seed
    ```
 
-   _Note: If updating from hashed passwords, run `npx tsx scripts/update-passwords-to-plaintext.ts`_
+   Passwords are stored as bcrypt hashes. For an existing database with legacy
+   plaintext passwords, run `npm run db:hash-passwords`; the login passwords stay
+   unchanged. Legacy accounts are also upgraded after a successful login.
+   Administrators can reset passwords, but cannot reveal stored passwords.
 
 6. **Run Application**
    ```bash
@@ -76,5 +79,7 @@ A modern system for managing demographic information and cultural center facilit
 - **Request/Notification:** User interactions
 
 ## 📄 License
+
+Repair notes and verification commands: [docs/SYSTEM_REPAIRS.md](docs/SYSTEM_REPAIRS.md).
 
 MIT License

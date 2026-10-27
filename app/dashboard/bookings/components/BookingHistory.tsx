@@ -11,7 +11,6 @@ interface BookingHistoryProps {
 }
 
 export default function BookingHistory({ isOpen, onClose, bookings }: BookingHistoryProps) {
-  if (!isOpen) return null
 
   const revenue = useMemo(() => {
     return bookings.reduce((sum, b) => {
@@ -45,6 +44,8 @@ export default function BookingHistory({ isOpen, onClose, bookings }: BookingHis
       minute: '2-digit'
     })
   }
+
+  if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 z-60 flex">

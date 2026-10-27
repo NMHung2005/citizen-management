@@ -1,3 +1,4 @@
+import { lockCenter, bookingErrorStatus } from '@/lib/booking-status'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { verifyToken } from '@/lib/auth'
@@ -35,7 +36,7 @@ export async function PUT(
     const start = new Date(startTime)
     const end = new Date(endTime)
 
-    if (start >= end) {
+    if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || start >= end) {
       return NextResponse.json(
         { message: 'Thời gian kết thúc phải sau thời gian bắt đầu' },
         { status: 400 }
@@ -68,63 +69,66 @@ export async function PUT(
       )
     }
 
-    // Check for overlapping bookings (excluding current booking)
-    // Two bookings overlap if: start1 < end2 AND end1 > start2
-    const overlappingBooking = await prisma.culturalCenterBooking.findFirst({
-      where: {
-        culturalCenterId,
-        status: 'APPROVED',
-        id: { not: params.id },
-        startTime: { lt: end },
-        endTime: { gt: start }
+    return await prisma.$transaction(async tx => {
+      await lockCenter(tx, culturalCenterId)
+      // Check for overlapping bookings (excluding current booking)
+      // Two bookings overlap if: start1 < end2 AND end1 > start2
+      const overlappingBooking = await tx.culturalCenterBooking.findFirst({
+        where: {
+          culturalCenterId,
+          status: 'APPROVED',
+          id: { not: params.id },
+          startTime: { lt: end },
+          endTime: { gt: start }
+        }
+      })
+
+      if (overlappingBooking) {
+        return NextResponse.json(
+          { message: 'Thời gian này đã được đặt bởi người khác' },
+          { status: 400 }
+        )
       }
-    })
 
-    if (overlappingBooking) {
-      return NextResponse.json(
-        { message: 'Thời gian này đã được đặt bởi người khác' },
-        { status: 400 }
-      )
-    }
-
-    const booking = await prisma.culturalCenterBooking.update({
-      where: { id: params.id },
-      data: {
-        title,
-        description: description || null,
-        startTime: start,
-        endTime: end,
-        culturalCenterId,
-        visibility: visibility || 'PUBLIC',
-        type: type || undefined,
-        fee: fee !== undefined && fee !== null ? (typeof fee === 'number' ? fee : parseFloat(String(fee))) : undefined
-      },
-      include: {
-        culturalCenter: {
-          select: {
-            id: true,
-            name: true,
-            building: true,
-            floor: true,
-            room: true,
-            capacity: true
-          }
+      const booking = await tx.culturalCenterBooking.update({
+        where: { id: params.id },
+        data: {
+          title,
+          description: description || null,
+          startTime: start,
+          endTime: end,
+          culturalCenterId,
+          visibility: visibility || 'PUBLIC',
+          type: type || undefined,
+          fee: fee !== undefined && fee !== null ? (typeof fee === 'number' ? fee : parseFloat(String(fee))) : undefined
         },
-        user: {
-          select: {
-            id: true,
-            name: true
+        include: {
+          culturalCenter: {
+            select: {
+              id: true,
+              name: true,
+              building: true,
+              floor: true,
+              room: true,
+              capacity: true
+            }
+          },
+          user: {
+            select: {
+              id: true,
+              name: true
+            }
           }
         }
-      }
-    })
+      })
 
-    return NextResponse.json(booking)
+      return NextResponse.json(booking)
+    }, { maxWait: 10000, timeout: 15000 })
   } catch (error) {
     console.error('Error updating booking:', error)
     return NextResponse.json(
       { message: 'Có lỗi xảy ra khi cập nhật lịch đặt' },
-      { status: 500 }
+      { status: bookingErrorStatus(error) }
     )
   }
 }

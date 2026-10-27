@@ -26,12 +26,6 @@ export async function GET(request: NextRequest) {
     const userData = await prisma.user.findUnique({
       where: { id: user.id },
       include: {
-        household: {
-          include: {
-            districtRelation: true,
-            persons: true
-          }
-        },
         requests: {
           orderBy: {
             createdAt: 'desc'
@@ -76,11 +70,6 @@ export async function GET(request: NextRequest) {
       csvRows.push(`Created At,${exportData.createdAt}`)
       csvRows.push(`Updated At,${exportData.updatedAt}`)
       
-      if (exportData.household) {
-        csvRows.push(`Household ID,${exportData.household.householdId}`)
-        csvRows.push(`Household Owner,${exportData.household.ownerName}`)
-        csvRows.push(`Household Address,${exportData.household.address}`)
-      }
 
       const csvContent = csvRows.join('\n')
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })

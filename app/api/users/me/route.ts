@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken, generateToken } from '@/lib/auth'
+import { verifyToken, generateToken, verifyPassword } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
 interface UpdateProfileRequest {
@@ -43,6 +43,7 @@ export async function GET(request: NextRequest) {
     // Return user data with defaults for new fields if they don't exist
     const responseData = {
       id: userData.id,
+      avatarUrl: userData.avatarUrl,
       email: userData.email,
       name: userData.name,
       phone: (userData as any).phone || null,
@@ -148,6 +149,7 @@ export async function PUT(request: NextRequest) {
     // Return with defaults for new fields
     const responseUser = {
       id: updatedUser.id,
+      avatarUrl: updatedUser.avatarUrl,
       email: updatedUser.email,
       name: updatedUser.name,
       phone: (updatedUser as any).phone || null,
@@ -245,12 +247,12 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    // Verify password (plain text comparison)
+    // Verify password
     const userData = await prisma.user.findUnique({
       where: { id: user.id }
     })
 
-    if (!userData || userData.password !== password) {
+    if (!userData || !await verifyPassword(password, userData.password)) {
       return NextResponse.json(
         { message: 'Mật khẩu không đúng' },
         { status: 401 }

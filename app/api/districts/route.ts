@@ -1,8 +1,12 @@
+import { requireUser, RESIDENT_ROLES } from '@/lib/api-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const authorization = await requireUser(request, RESIDENT_ROLES)
+    if (authorization.error) return authorization.error
+
     const districts = await prisma.district.findMany({
       include: {
         _count: {
@@ -28,6 +32,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const authorization = await requireUser(request, RESIDENT_ROLES)
+    if (authorization.error) return authorization.error
+
     const { name, description } = await request.json()
 
     if (!name) {
@@ -38,9 +45,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if district name already exists
-    const existingDistrict = await prisma.district.findFirst({
-      where: { name: { equals: name, mode: 'insensitive' } }
-    })
+    const districts = await prisma.district.findMany({ select: { name: true } })
+    const existingDistrict = districts.some(d => d.name.toLocaleLowerCase('vi-VN') === name.toLocaleLowerCase('vi-VN'))
 
     if (existingDistrict) {
       return NextResponse.json(

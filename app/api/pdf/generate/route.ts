@@ -1,8 +1,12 @@
+import { requireUser } from '@/lib/api-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import puppeteer from 'puppeteer'
 
 export async function POST(request: NextRequest) {
   try {
+    const authorization = await requireUser(request)
+    if (authorization.error) return authorization.error
+
     const { html, filename = 'document.pdf' } = await request.json()
 
     if (!html) {

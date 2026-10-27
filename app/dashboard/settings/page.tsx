@@ -17,6 +17,7 @@ interface UserData {
   email: string
   name: string
   role: string
+  avatarUrl?: string | null
   phone?: string
   address?: string
   isEmailNotificationEnabled?: boolean

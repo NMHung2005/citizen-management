@@ -1,8 +1,12 @@
+import { requireUser, FACILITY_ROLES } from '@/lib/api-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const authorization = await requireUser(request, FACILITY_ROLES)
+    if (authorization.error) return authorization.error
+
     const centers = await prisma.culturalCenter.findMany({
       include: {
         _count: {
@@ -30,6 +34,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const authorization = await requireUser(request, FACILITY_ROLES)
+    if (authorization.error) return authorization.error
+
     const { name, description, capacity, location, building, floor, room, amenities, area, yearBuilt, imageUrl } = await request.json()
 
     if (!name || !capacity || !building) {

@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 import { prisma } from './prisma'
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'
+import bcrypt from 'bcryptjs'
+import { getJwtSecret } from './jwt-secret'
 
 export interface UserPayload {
   id: string
@@ -10,27 +10,33 @@ export interface UserPayload {
   role: string
 }
 
-// Plain text password comparison (no hashing)
-export function verifyPassword(password: string, storedPassword: string): boolean {
-  return password === storedPassword
+export function isPasswordHash(value: string): boolean {
+  return /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/.test(value)
+}
+
+export async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, 12)
+}
+
+export async function verifyPassword(password: string, storedPassword: string): Promise<boolean> {
+  if (typeof password !== 'string' || typeof storedPassword !== 'string') return false
+  // Legacy plaintext is accepted only to support migration on successful login.
+  return isPasswordHash(storedPassword)
+    ? bcrypt.compare(password, storedPassword)
+    : password === storedPassword
 }
 
 export function generateToken(payload: UserPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' })
+  return jwt.sign(payload, getJwtSecret(), { expiresIn: '7d', algorithm: 'HS256' })
 }
 
 export function verifyToken(token: string): UserPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as UserPayload
-  } catch {
-    return null
-  }
-}
-
-// Hàm an toàn dùng cho Middleware (chỉ decode, không verify signature để tránh lỗi trên Edge)
-export function decodeTokenOnly(token: string): UserPayload | null {
-  try {
-    return jwt.decode(token) as UserPayload
+    const payload = jwt.verify(token, getJwtSecret(), { algorithms: ['HS256'] })
+    if (typeof payload === 'string' || typeof payload.id !== 'string' ||
+        typeof payload.email !== 'string' || typeof payload.name !== 'string' ||
+        typeof payload.role !== 'string') return null
+    return payload as UserPayload
   } catch {
     return null
   }
@@ -41,8 +47,17 @@ export async function authenticateUser(email: string, password: string) {
     where: { email }
   })
 
-  if (!user || !verifyPassword(password, user.password)) {
+  if (!user || !await verifyPassword(password, user.password)) {
     return null
+  }
+
+  if (!isPasswordHash(user.password)) {
+    const upgraded = await prisma.user.updateMany({
+      where: { id: user.id, password: user.password },
+      data: { password: await hashPassword(password) }
+    })
+    // A reset during hashing takes precedence over this older login attempt.
+    if (upgraded.count === 0) return null
   }
 
   const { password: _, ...userWithoutPassword } = user
@@ -50,11 +65,10 @@ export async function authenticateUser(email: string, password: string) {
 }
 
 export async function createUser(email: string, password: string, name: string, role: string = 'USER') {
-  // Store password as plain text (no hashing)
   return prisma.user.create({
     data: {
       email,
-      password: password, // Plain text password
+      password: await hashPassword(password),
       name,
       role
     }

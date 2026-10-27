@@ -1,9 +1,13 @@
+import { requireUser, RESIDENT_ROLES } from '@/lib/api-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 // Lấy tất cả lịch sử thay đổi hộ khẩu (có thể filter theo householdId)
 export async function GET(request: NextRequest) {
   try {
+    const authorization = await requireUser(request, RESIDENT_ROLES)
+    if (authorization.error) return authorization.error
+
     const { searchParams } = new URL(request.url)
     const householdId = searchParams.get('householdId')
     const changeType = searchParams.get('changeType')

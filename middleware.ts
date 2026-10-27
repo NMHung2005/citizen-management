@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { decodeTokenOnly } from '@/lib/auth'
+import { jwtVerify } from 'jose'
+import { getJwtSecret } from '@/lib/jwt-secret'
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const token = request.cookies.get('auth-token')?.value
   const { pathname } = request.nextUrl
   
@@ -19,7 +20,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
   
-  const user = decodeTokenOnly(token)
+  let user
+  try {
+    const { payload } = await jwtVerify(token, new TextEncoder().encode(getJwtSecret()), { algorithms: ['HS256'] })
+    if (typeof payload.id !== 'string' || typeof payload.role !== 'string') throw new Error('Invalid token')
+    user = payload
+  } catch {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
   
   if (!user) {
     return NextResponse.redirect(new URL('/login', request.url))

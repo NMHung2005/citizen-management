@@ -1,6 +1,6 @@
 'use client'
 
-import { Trash2, Edit, Eye, Lock } from 'lucide-react'
+import { Trash2, Edit, Lock } from 'lucide-react'
 import { UserRole } from '@/lib/types'
 import { getRoleLabel, getRoleBadgeColor } from '../utils/roleUtils'
 
@@ -15,7 +15,6 @@ interface UserWithPassword {
 interface UsersTableProps {
   users: UserWithPassword[]
   searchTerm: string
-  onRevealPassword: (user: UserWithPassword) => void
   onChangePassword: (user: UserWithPassword) => void
   onUpdateRole: (user: UserWithPassword) => void
   onDeleteUser: (userId: string) => void
@@ -24,7 +23,6 @@ interface UsersTableProps {
 export default function UsersTable({
   users,
   searchTerm,
-  onRevealPassword,
   onChangePassword,
   onUpdateRole,
   onDeleteUser
@@ -100,13 +98,6 @@ export default function UsersTable({
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => onRevealPassword(user)}
-                        className="p-2 text-purple-600 hover:bg-purple-50 rounded-[8px] transition-colors"
-                        title="Hiển thị mật khẩu"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </button>
                       <button
                         onClick={() => onChangePassword(user)}
                         className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-[8px] transition-colors"

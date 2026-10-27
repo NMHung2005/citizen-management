@@ -14,6 +14,19 @@ interface BookingModalProps {
   editingBooking: Booking | null
 }
 
+const rateMap: Record<string, number> = {
+  'Hội trường tầng 1': 120000,
+  'Phòng chức năng 3': 120000,
+  'Sân bóng chuyền': 60000,
+  'Sân cầu lông': 50000,
+  'Sân cầu lông 2': 50000,
+  'Phòng họp nhỏ tầng 1': 70000,
+  'Phòng đa năng tầng 3': 70000,
+  'Phòng chức năng 1': 40000,
+  'Phòng chức năng 2': 40000,
+  'Phòng thư viện': 30000
+}
+
 export default function BookingModal({
   isOpen,
   onClose,
@@ -23,21 +36,6 @@ export default function BookingModal({
   centers,
   editingBooking
 }: BookingModalProps) {
-  if (!isOpen) return null
- 
-  const rateMap: Record<string, number> = {
-    'Hội trường tầng 1': 120000,
-    'Phòng chức năng 3': 120000,
-    'Sân bóng chuyền': 60000,
-    'Sân cầu lông': 50000,
-    'Sân cầu lông 2': 50000,
-    'Phòng họp nhỏ tầng 1': 70000,
-    'Phòng đa năng tầng 3': 70000,
-    'Phòng chức năng 1': 40000,
-    'Phòng chức năng 2': 40000,
-    'Phòng thư viện': 30000
-  }
-
   const {
     hours,
     unit,
@@ -91,14 +89,16 @@ export default function BookingModal({
     }
   }, [formData.startTime, formData.endTime, formData.culturalCenterId, centers])
 
+  if (!isOpen) return null
+
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
-        <div 
-          className="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity backdrop-blur-sm" 
-          onClick={onClose} 
+        <div
+          className="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity backdrop-blur-sm"
+          onClick={onClose}
         />
-        
+
         <div className="relative inline-block align-bottom bg-white rounded-[15px] text-left overflow-hidden shadow-drop-lg transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
           {/* Modal Header */}
           <div className="bg-gradient-to-r from-navy-1 to-navy-2 px-6 py-5">
@@ -132,7 +132,7 @@ export default function BookingModal({
                     placeholder="Nhập tiêu đề sự kiện"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Mô tả
@@ -145,7 +145,7 @@ export default function BookingModal({
                     placeholder="Nhập mô tả sự kiện (tùy chọn)"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Nhà văn hóa *
@@ -187,7 +187,7 @@ export default function BookingModal({
                     </div>
                   )}
                 </div>
-                
+
                 {/* Booker info */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
@@ -211,7 +211,7 @@ export default function BookingModal({
                     />
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -225,7 +225,7 @@ export default function BookingModal({
                       onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Thời gian kết thúc *
@@ -241,7 +241,7 @@ export default function BookingModal({
                 </div>
               </div>
             </div>
-            
+
             {/* Payment summary */}
             <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
               <div className="max-w-3xl mx-auto">

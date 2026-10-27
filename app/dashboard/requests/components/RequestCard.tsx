@@ -1,5 +1,7 @@
 'use client'
 
+import type { Request } from '../types'
+
 import { Plus, X, Eye, Clock, FileText } from 'lucide-react'
 
 const REQUEST_TYPES = {
@@ -7,25 +9,6 @@ const REQUEST_TYPES = {
   ADD_PERSON: 'Thêm nhân khẩu',
   REMOVE_PERSON: 'Xóa nhân khẩu',
   CULTURAL_CENTER_BOOKING: 'Đặt lịch nhà văn hóa'
-}
-
-interface Request {
-  id: string
-  type: 'HOUSEHOLD_UPDATE' | 'ADD_PERSON' | 'REMOVE_PERSON' | 'CULTURAL_CENTER_BOOKING'
-  status: 'PENDING' | 'APPROVED' | 'REJECTED'
-  description: string
-  user: {
-    id: string
-    name: string
-    email: string
-  }
-  household: {
-    id: string
-    householdId: string
-    address: string
-  } | null
-  createdAt: string
-  updatedAt: string
 }
 
 interface RequestCardProps {

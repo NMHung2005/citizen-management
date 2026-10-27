@@ -1,5 +1,7 @@
 'use client'
 
+import type { Request } from './types'
+
 import { useState, useEffect } from 'react'
 import { AlertCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -8,26 +10,6 @@ import RequestCard from './components/RequestCard'
 import RequestDetailModal from './components/RequestDetailModal'
 
 // Giữ lại interface để đảm bảo không bị lỗi type
-interface Request {
-  id: string
-  type: 'HOUSEHOLD_UPDATE' | 'ADD_PERSON' | 'REMOVE_PERSON' | 'CULTURAL_CENTER_BOOKING'
-  status: 'PENDING' | 'APPROVED' | 'REJECTED'
-  description: string
-  data: string | null
-  user: {
-    id: string
-    name: string
-    email: string
-  }
-  household: {
-    id: string
-    householdId: string
-    address: string
-  } | null
-  createdAt: string
-  updatedAt: string
-}
-
 export default function RequestsPage() {
   const [requests, setRequests] = useState<Request[]>([])
   const [loading, setLoading] = useState(true)

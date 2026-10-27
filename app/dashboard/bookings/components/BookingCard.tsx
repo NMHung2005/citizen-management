@@ -171,7 +171,7 @@ export default function BookingCard({ booking, onEdit, onDelete, fetchBookings }
                   )}
                 </div>
               </div>
-              {booking.fee !== null && (
+              {booking.fee != null && (
                 <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
                   <DollarSign className="h-4 w-4 text-green-600" />
                   <span className="text-sm font-bold text-green-600">

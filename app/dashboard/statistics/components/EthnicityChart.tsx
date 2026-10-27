@@ -48,7 +48,7 @@ export default function EthnicityChart({ ethnicityStats, total }: EthnicityChart
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={({ name, percentage }) => `${name}: ${percentage}%`}
+              label={({ name, index }) => `${name}: ${chartData[index]?.percentage ?? '0'}%`}
               outerRadius={100}
               fill="#8884d8"
               dataKey="value"

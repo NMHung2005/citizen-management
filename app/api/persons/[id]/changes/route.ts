@@ -1,3 +1,4 @@
+import { requireUser, RESIDENT_ROLES } from '@/lib/api-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
@@ -7,6 +8,9 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const authorization = await requireUser(request, RESIDENT_ROLES)
+    if (authorization.error) return authorization.error
+
     const changes = await prisma.personChangeHistory.findMany({
       where: { personId: params.id },
       orderBy: { changeDate: 'desc' }
@@ -28,6 +32,9 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    const authorization = await requireUser(request, RESIDENT_ROLES)
+    if (authorization.error) return authorization.error
+
     const { changeType, changeDate, description, moveOutDate, moveOutPlace, notes } = await request.json()
 
     if (!changeType || !changeDate) {

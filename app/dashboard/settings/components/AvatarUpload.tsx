@@ -1,24 +1,27 @@
 'use client'
 
 import { Camera } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 
 interface AvatarUploadProps {
+  avatarUrl?: string | null
   userName: string
   userEmail: string
   onAvatarChange?: (avatarUrl: string) => void
 }
 
-export default function AvatarUpload({ userName, userEmail, onAvatarChange }: AvatarUploadProps) {
+export default function AvatarUpload({ avatarUrl, userName, userEmail, onAvatarChange }: AvatarUploadProps) {
   const [uploading, setUploading] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState(avatarUrl)
+  useEffect(() => setPreviewUrl(avatarUrl), [avatarUrl])
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
     // Validate file type
-    if (!file.type.startsWith('image/')) {
+    if (!['image/png', 'image/jpeg', 'image/gif', 'image/webp'].includes(file.type)) {
       toast.error('Vui lòng chọn file ảnh')
       return
     }
@@ -42,6 +45,7 @@ export default function AvatarUpload({ userName, userEmail, onAvatarChange }: Av
 
       if (response.ok) {
         const data = await response.json()
+        setPreviewUrl(data.avatarUrl)
         toast.success('Đã cập nhật ảnh đại diện!')
         if (onAvatarChange) {
           onAvatarChange(data.avatarUrl)
@@ -64,12 +68,12 @@ export default function AvatarUpload({ userName, userEmail, onAvatarChange }: Av
     <div className="flex items-center gap-6 mb-8 pb-8 border-b border-gray-200">
       <div className="relative">
         <div className="w-24 h-24 rounded-full bg-gradient-to-br from-navy-1 to-navy-2 flex items-center justify-center text-white text-2xl font-bold">
-          {userName?.charAt(0).toUpperCase() || 'U'}
+          {previewUrl ? <img src={previewUrl} alt="Ảnh đại diện" className="w-full h-full rounded-full object-cover" /> : userName?.charAt(0).toUpperCase() || 'U'}
         </div>
         <label className="absolute bottom-0 right-0 p-2 bg-navy-1 text-white rounded-full hover:bg-navy-2 transition-colors shadow-drop hover:shadow-drop-lg cursor-pointer">
           <input
             type="file"
-            accept="image/*"
+            accept="image/png,image/jpeg,image/gif,image/webp"
             onChange={handleFileChange}
             disabled={uploading}
             className="hidden"
@@ -87,7 +91,7 @@ export default function AvatarUpload({ userName, userEmail, onAvatarChange }: Av
         <label className="mt-2 text-sm text-navy-1 hover:text-navy-2 font-medium cursor-pointer inline-block">
           <input
             type="file"
-            accept="image/*"
+            accept="image/png,image/jpeg,image/gif,image/webp"
             onChange={handleFileChange}
             disabled={uploading}
             className="hidden"

@@ -7,6 +7,7 @@ interface ProfileTabProps {
   user: {
     name: string
     email: string
+    avatarUrl?: string | null
   } | null
   profileData: {
     name: string
@@ -43,6 +44,7 @@ export default function ProfileTab({
 
         {/* Avatar Section */}
         <AvatarUpload
+          avatarUrl={user?.avatarUrl}
           userName={user?.name || ''}
           userEmail={user?.email || ''}
         />

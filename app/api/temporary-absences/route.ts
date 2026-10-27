@@ -1,9 +1,13 @@
+import { requireUser, RESIDENT_ROLES } from '@/lib/api-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 // Lấy danh sách tạm vắng
 export async function GET(request: NextRequest) {
   try {
+    const authorization = await requireUser(request, RESIDENT_ROLES)
+    if (authorization.error) return authorization.error
+
     const { status, personId } = Object.fromEntries(request.nextUrl.searchParams)
 
     const where: any = {}
@@ -39,6 +43,9 @@ export async function GET(request: NextRequest) {
 // Tạo giấy tạm vắng
 export async function POST(request: NextRequest) {
   try {
+    const authorization = await requireUser(request, RESIDENT_ROLES)
+    if (authorization.error) return authorization.error
+
     const { personId, startDate, endDate, reason, destination } = await request.json()
 
     if (!personId || !startDate) {

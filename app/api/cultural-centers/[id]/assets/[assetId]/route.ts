@@ -1,3 +1,4 @@
+import { requireUser, FACILITY_ROLES } from '@/lib/api-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
@@ -7,6 +8,9 @@ export async function PUT(
   { params }: { params: { id: string; assetId: string } }
 ) {
   try {
+    const authorization = await requireUser(request, FACILITY_ROLES)
+    if (authorization.error) return authorization.error
+
     const { 
       name, 
       category, 
@@ -71,6 +75,9 @@ export async function DELETE(
   { params }: { params: { id: string; assetId: string } }
 ) {
   try {
+    const authorization = await requireUser(request, FACILITY_ROLES)
+    if (authorization.error) return authorization.error
+
     await prisma.culturalCenterAsset.delete({
       where: { id: params.assetId }
     })

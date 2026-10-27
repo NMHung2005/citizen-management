@@ -1,8 +1,13 @@
+import type { NextRequest } from 'next/server'
+import { requireUser, RESIDENT_ROLES } from '@/lib/api-auth'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const authorization = await requireUser(request, RESIDENT_ROLES)
+    if (authorization.error) return authorization.error
+
     // Lấy tất cả nhân khẩu và hộ khẩu
     const [allPersons, allHouseholds, districts] = await Promise.all([
       prisma.person.findMany({

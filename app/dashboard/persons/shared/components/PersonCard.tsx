@@ -1,20 +1,8 @@
 'use client'
 
-import { Users, Edit, Trash2, Calendar, CreditCard, Home } from 'lucide-react'
+import type { Person } from '../types'
 
-interface Person {
-  id: string
-  fullName: string
-  dateOfBirth: string
-  gender: string
-  idNumber: string | null
-  status: string
-  household: {
-    id: string
-    householdId: string
-    address: string
-  }
-}
+import { Users, Edit, Trash2, Calendar, CreditCard, Home } from 'lucide-react'
 
 interface PersonCardProps {
   person: Person

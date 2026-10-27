@@ -1,3 +1,4 @@
+import { requireUser, RESIDENT_ROLES } from '@/lib/api-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
@@ -77,6 +78,9 @@ export async function GET(
   { params }: { params: { id: string } },
 ) {
   try {
+    const authorization = await requireUser(_request, RESIDENT_ROLES)
+    if (authorization.error) return authorization.error
+
     const pdfBytes = await generateTemporaryAbsencePdf(params.id)
 
     if (!pdfBytes) {

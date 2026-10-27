@@ -1,3 +1,4 @@
+import { lockCenter, bookingErrorStatus } from '@/lib/booking-status'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { verifyToken } from '@/lib/auth'
@@ -100,7 +101,7 @@ export async function POST(request: NextRequest) {
     const start = new Date(startTime)
     const end = new Date(endTime)
 
-    if (start >= end) {
+    if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || start >= end) {
       return NextResponse.json(
         { message: 'Thời gian kết thúc phải sau thời gian bắt đầu' },
         { status: 400 }
@@ -114,78 +115,81 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check for overlapping bookings
-    // Two bookings overlap if: start1 < end2 AND end1 > start2
-    const overlappingBooking = await prisma.culturalCenterBooking.findFirst({
-      where: {
-        culturalCenterId,
-        status: 'APPROVED',
-        startTime: { lt: end },
-        endTime: { gt: start }
+    return await prisma.$transaction(async tx => {
+      await lockCenter(tx, culturalCenterId)
+      // Check for overlapping bookings
+      // Two bookings overlap if: start1 < end2 AND end1 > start2
+      const overlappingBooking = await tx.culturalCenterBooking.findFirst({
+        where: {
+          culturalCenterId,
+          status: 'APPROVED',
+          startTime: { lt: end },
+          endTime: { gt: start }
+        }
+      })
+
+      if (overlappingBooking) {
+        return NextResponse.json(
+          { message: 'Thời gian này đã được đặt bởi người khác' },
+          { status: 400 }
+        )
       }
-    })
 
-    if (overlappingBooking) {
-      return NextResponse.json(
-        { message: 'Thời gian này đã được đặt bởi người khác' },
-        { status: 400 }
-      )
-    }
+      // Determine initial status based on user role
+      // FACILITY_MANAGER must wait for approval (PENDING)
+      // TEAM_LEADER, DEPUTY can skip approval and go straight to APPROVED
+      const canSkipApproval = ['TEAM_LEADER', 'ADMIN', 'LEADER', 'DEPUTY'].includes(user.role)
 
-    // Determine initial status based on user role
-    // FACILITY_MANAGER must wait for approval (PENDING)
-    // TEAM_LEADER, DEPUTY can skip approval and go straight to APPROVED
-    const canSkipApproval = ['TEAM_LEADER', 'ADMIN', 'LEADER', 'DEPUTY'].includes(user.role)
-    
-    // Default to PENDING
-    let initialStatus = 'PENDING'
+      // Default to PENDING
+      let initialStatus = 'PENDING'
 
-    if (canSkipApproval) {
-      initialStatus = 'APPROVED'
-    }
+      if (canSkipApproval) {
+        initialStatus = 'APPROVED'
+      }
 
-    const booking = await prisma.culturalCenterBooking.create({
-      data: {
-        title,
-        description: description || null,
-        startTime: start,
-        endTime: end,
-        culturalCenterId,
-        userId: user.id,
-        visibility: visibility || 'PUBLIC',
-        status: initialStatus,
-        type: type || 'EVENT',
-        fee: fee !== undefined && fee !== null ? (typeof fee === 'number' ? fee : parseFloat(String(fee))) : null,
-        bookerName: bookerName ? String(bookerName) : null,
-        bookerPhone: bookerPhone ? String(bookerPhone) : null,
-        feePaid: false // Always false initially, or true if we consider fee handled externally
-      },
-      include: {
-        culturalCenter: {
-          select: {
-            id: true,
-            name: true,
-            building: true,
-            floor: true,
-            room: true,
-            capacity: true
-          }
+      const booking = await tx.culturalCenterBooking.create({
+        data: {
+          title,
+          description: description || null,
+          startTime: start,
+          endTime: end,
+          culturalCenterId,
+          userId: user.id,
+          visibility: visibility || 'PUBLIC',
+          status: initialStatus,
+          type: type || 'EVENT',
+          fee: fee !== undefined && fee !== null ? (typeof fee === 'number' ? fee : parseFloat(String(fee))) : null,
+          bookerName: bookerName ? String(bookerName) : null,
+          bookerPhone: bookerPhone ? String(bookerPhone) : null,
+          feePaid: false // Always false initially, or true if we consider fee handled externally
         },
-        user: {
-          select: {
-            id: true,
-            name: true
+        include: {
+          culturalCenter: {
+            select: {
+              id: true,
+              name: true,
+              building: true,
+              floor: true,
+              room: true,
+              capacity: true
+            }
+          },
+          user: {
+            select: {
+              id: true,
+              name: true
+            }
           }
         }
-      }
-    })
+      })
 
-    return NextResponse.json(booking, { status: 201 })
+      return NextResponse.json(booking, { status: 201 })
+    }, { maxWait: 10000, timeout: 15000 })
   } catch (error) {
     console.error('Error creating booking:', error)
     return NextResponse.json(
       { message: 'Có lỗi xảy ra khi tạo lịch đặt' },
-      { status: 500 }
+      { status: bookingErrorStatus(error) }
     )
   }
 }

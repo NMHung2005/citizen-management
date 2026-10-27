@@ -21,6 +21,10 @@ dist/
 # Database files
 dev.db
 prisma/dev.db
+*.db-journal
+*.db-wal
+*.db-shm
+prisma/backups/
 
 # Logs
 logs/

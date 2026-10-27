@@ -89,7 +89,7 @@ function EditAssetModal({ asset, centerId, onClose, onUpdate }: EditAssetModalPr
               <label className="block text-sm font-medium text-gray-700 mb-2">Danh mục</label>
               <input
                 type="text"
-                value={formData.category}
+                value={formData.category ?? ''}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-[8px] focus:ring-2 focus:ring-navy-1 focus:border-transparent"
               />
@@ -227,7 +227,7 @@ function EditAssetModal({ asset, centerId, onClose, onUpdate }: EditAssetModalPr
               <label className="block text-sm font-medium text-gray-700 mb-2">Vị trí</label>
               <input
                 type="text"
-                value={formData.location}
+                value={formData.location ?? ''}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-[8px] focus:ring-2 focus:ring-navy-1 focus:border-transparent"
               />
@@ -236,7 +236,7 @@ function EditAssetModal({ asset, centerId, onClose, onUpdate }: EditAssetModalPr
               <label className="block text-sm font-medium text-gray-700 mb-2">Đường dẫn hình ảnh</label>
               <input
                 type="text"
-                value={formData.imageUrl}
+                value={formData.imageUrl ?? ''}
                 onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
                 placeholder="/assets/images/center/ten-file.jpg"
                 className="w-full px-4 py-2 border border-gray-300 rounded-[8px] focus:ring-2 focus:ring-navy-1 focus:border-transparent"
@@ -246,7 +246,7 @@ function EditAssetModal({ asset, centerId, onClose, onUpdate }: EditAssetModalPr
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Ghi chú</label>
               <textarea
-                value={formData.notes}
+                value={formData.notes ?? ''}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 rows={3}
                 className="w-full px-4 py-2 border border-gray-300 rounded-[8px] focus:ring-2 focus:ring-navy-1 focus:border-transparent"

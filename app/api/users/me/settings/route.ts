@@ -74,7 +74,7 @@ export async function PATCH(request: NextRequest) {
       isPushNotificationEnabled: (updatedUser as any).isPushNotificationEnabled ?? true,
       isPublicProfile: (updatedUser as any).isPublicProfile ?? false,
       theme: (updatedUser as any).theme || 'system',
-      householdId: updatedUser.householdId,
+
       createdAt: updatedUser.createdAt,
       updatedAt: updatedUser.updatedAt
     }

@@ -1,3 +1,4 @@
+import { requireUser, FACILITY_ROLES } from '@/lib/api-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
@@ -6,6 +7,9 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    const authorization = await requireUser(request, FACILITY_ROLES)
+    if (authorization.error) return authorization.error
+
     const { name, description, capacity, location, building, floor, room, amenities, imageUrl } = await request.json()
 
     if (!name || !capacity || !building) {
@@ -52,6 +56,9 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const authorization = await requireUser(request, FACILITY_ROLES)
+    if (authorization.error) return authorization.error
+
     // Check if center has bookings
     const center = await prisma.culturalCenter.findUnique({
       where: { id: params.id },

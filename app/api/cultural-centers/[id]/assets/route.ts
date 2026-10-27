@@ -1,3 +1,4 @@
+import { requireUser, FACILITY_ROLES } from '@/lib/api-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
@@ -7,6 +8,9 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const authorization = await requireUser(request, FACILITY_ROLES)
+    if (authorization.error) return authorization.error
+
     const assets = await prisma.culturalCenterAsset.findMany({
       where: {
         culturalCenterId: params.id
@@ -30,6 +34,9 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    const authorization = await requireUser(request, FACILITY_ROLES)
+    if (authorization.error) return authorization.error
+
     const { name, category, quantity, condition, location, notes } = await request.json()
 
     if (!name || !quantity) {

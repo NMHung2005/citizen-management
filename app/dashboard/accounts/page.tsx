@@ -8,8 +8,6 @@ import { useUsers } from './hooks/useUsers'
 import UsersTable from './components/UsersTable'
 import CreateUserModal from './components/CreateUserModal'
 import UpdateRoleModal from './components/UpdateRoleModal'
-import RevealPasswordModal from './components/RevealPasswordModal'
-import RevealedPasswordModal from './components/RevealedPasswordModal'
 import ChangePasswordModal from './components/ChangePasswordModal'
 
 interface UserWithPassword {
@@ -26,12 +24,8 @@ export default function AccountsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showRoleModal, setShowRoleModal] = useState(false)
-  const [showRevealModal, setShowRevealModal] = useState(false)
   const [showPasswordModal, setShowPasswordModal] = useState(false)
-  const [showRevealedPasswordModal, setShowRevealedPasswordModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState<UserWithPassword | null>(null)
-  const [adminPassword, setAdminPassword] = useState('')
-  const [revealedPassword, setRevealedPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmAdminPassword, setConfirmAdminPassword] = useState('')
   const [formData, setFormData] = useState<CreateUserData>({
@@ -153,69 +147,6 @@ export default function AccountsPage() {
     setShowRoleModal(true)
   }
 
-  const openRevealModal = (user: UserWithPassword) => {
-    setSelectedUser(user)
-    setAdminPassword('')
-    setShowRevealModal(true)
-  }
-
-  const handleRevealPassword = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!selectedUser || !adminPassword) {
-      toast.error('Vui lòng nhập mật khẩu quản trị viên')
-      return
-    }
-
-    try {
-      // Get current admin user ID from API
-      const meResponse = await fetch('/api/auth/me', {
-        credentials: 'include'
-      })
-
-      if (!meResponse.ok) {
-        toast.error('Không thể xác thực người dùng')
-        return
-      }
-
-      const adminUser = await meResponse.json()
-
-      const response = await fetch('/api/admin/verify-and-reveal', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          adminId: adminUser.id,
-          adminPassword: adminPassword,
-          targetUserId: selectedUser.id
-        })
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        setRevealedPassword(data.password)
-        setShowRevealModal(false)
-        setAdminPassword('')
-        setShowRevealedPasswordModal(true)
-      } else {
-        // Check if password is still hashed
-        if (data.error === 'PASSWORD_STILL_HASHED') {
-          toast.error(
-            'Mật khẩu trong database vẫn đang được hash. Vui lòng chạy script: npx tsx scripts/update-passwords-to-plaintext.ts',
-            { duration: 6000 }
-          )
-        } else {
-          toast.error(data.message || 'Mật khẩu quản trị viên không đúng')
-        }
-      }
-    } catch (error) {
-      toast.error('Có lỗi xảy ra khi xác thực')
-    }
-  }
-
   const openChangePasswordModal = (user: UserWithPassword) => {
     setSelectedUser(user)
     setNewPassword('')
@@ -315,7 +246,6 @@ export default function AccountsPage() {
       <UsersTable
         users={users}
         searchTerm={searchTerm}
-        onRevealPassword={openRevealModal}
         onChangePassword={openChangePasswordModal}
         onUpdateRole={openRoleModal}
         onDeleteUser={handleDeleteUser}
@@ -340,29 +270,6 @@ export default function AccountsPage() {
         user={selectedUser}
         roleFormData={roleFormData}
         setRoleFormData={setRoleFormData}
-      />
-
-      <RevealPasswordModal
-        isOpen={showRevealModal}
-        onClose={() => {
-          setShowRevealModal(false)
-          setAdminPassword('')
-        }}
-        onSubmit={handleRevealPassword}
-        user={selectedUser}
-        adminPassword={adminPassword}
-        setAdminPassword={setAdminPassword}
-      />
-
-      <RevealedPasswordModal
-        isOpen={showRevealedPasswordModal}
-        onClose={() => {
-          setShowRevealedPasswordModal(false)
-          setRevealedPassword('')
-          setSelectedUser(null)
-        }}
-        user={selectedUser}
-        revealedPassword={revealedPassword}
       />
 
       <ChangePasswordModal

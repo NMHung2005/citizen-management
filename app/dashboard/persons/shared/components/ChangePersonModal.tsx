@@ -137,7 +137,7 @@ export default function ChangePersonModal({
               {changeForm.changeType === 'DECEASED' && (
                 <p className="text-xs text-gray-500">
                   Khi lưu, hệ thống sẽ cập nhật tình trạng thành <strong>Đã qua đời</strong> và
-                  tự động ghi chú là <strong>"Đã qua đời"</strong>.
+                  tự động ghi chú là <strong>&quot;Đã qua đời&quot;</strong>.
                 </p>
               )}
             </div>

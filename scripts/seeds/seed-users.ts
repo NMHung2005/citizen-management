@@ -1,3 +1,4 @@
+import { hashPassword } from '../../lib/auth'
 import { PrismaClient } from '@prisma/client'
 
 export interface SeedUsersResult {
@@ -12,7 +13,7 @@ export async function seedUsers(prisma: PrismaClient): Promise<SeedUsersResult> 
   const admin = await prisma.user.create({
     data: {
       email: 'admin@example.com',
-      password: 'admin123', // Plain text password
+      password: await hashPassword('admin123'),
       name: 'Quản trị viên',
       role: 'ADMIN'
     }
@@ -22,7 +23,7 @@ export async function seedUsers(prisma: PrismaClient): Promise<SeedUsersResult> 
   const user = await prisma.user.create({
     data: {
       email: 'user@example.com',
-      password: 'user123', // Plain text password
+      password: await hashPassword('user123'),
       name: 'Cán bộ',
       role: 'DEPUTY'
     }
@@ -32,7 +33,7 @@ export async function seedUsers(prisma: PrismaClient): Promise<SeedUsersResult> 
   await prisma.user.create({
     data: {
       email: 'totruong@gmail.com',
-      password: '123456', // Plain text password
+      password: await hashPassword('123456'),
       name: 'Nguyễn Văn Tổ Trưởng',
       role: 'TEAM_LEADER'
     }
@@ -42,7 +43,7 @@ export async function seedUsers(prisma: PrismaClient): Promise<SeedUsersResult> 
   await prisma.user.create({
     data: {
       email: 'topho@gmail.com',
-      password: '123456', // Plain text password
+      password: await hashPassword('123456'),
       name: 'Trần Thị Tổ Phó',
       role: 'DEPUTY'
     }
@@ -52,7 +53,7 @@ export async function seedUsers(prisma: PrismaClient): Promise<SeedUsersResult> 
   await prisma.user.create({
     data: {
       email: 'quanlycsvc@gmail.com',
-      password: '123456', // Plain text password
+      password: await hashPassword('123456'),
       name: 'Lê Văn Quản Lý',
       role: 'FACILITY_MANAGER'
     }

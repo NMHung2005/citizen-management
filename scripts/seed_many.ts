@@ -1,3 +1,4 @@
+import { hashPassword } from '../lib/auth'
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
@@ -73,7 +74,7 @@ async function main() {
   const admin = await prisma.user.create({
     data: {
       email: 'admin@example.com',
-      password: 'admin123',
+      password: await hashPassword('admin123'),
       name: 'Quản trị viên',
       role: 'ADMIN'
     }
@@ -82,7 +83,7 @@ async function main() {
   await prisma.user.create({
     data: {
       email: 'totruong@gmail.com',
-      password: '123456',
+      password: await hashPassword('123456'),
       name: 'Nguyễn Văn Tổ Trưởng',
       role: 'TEAM_LEADER'
     }
@@ -91,7 +92,7 @@ async function main() {
   await prisma.user.create({
     data: {
       email: 'topho@gmail.com',
-      password: '123456',
+      password: await hashPassword('123456'),
       name: 'Trần Thị Tổ Phó',
       role: 'DEPUTY'
     }
@@ -100,7 +101,7 @@ async function main() {
   await prisma.user.create({
     data: {
       email: 'quanlycsvc@gmail.com',
-      password: '123456',
+      password: await hashPassword('123456'),
       name: 'Lê Văn Quản Lý',
       role: 'FACILITY_MANAGER'
     }

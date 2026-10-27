@@ -1,3 +1,4 @@
+import { requireUser, FACILITY_ROLES } from '@/lib/api-auth'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
@@ -7,6 +8,9 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const authorization = await requireUser(request, FACILITY_ROLES)
+    if (authorization.error) return authorization.error
+
     const { activityType, startDate, endDate } = Object.fromEntries(request.nextUrl.searchParams)
 
     const where: any = {
@@ -41,6 +45,9 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    const authorization = await requireUser(request, FACILITY_ROLES)
+    if (authorization.error) return authorization.error
+
     const { title, description, activityType, startDate, endDate, organizer, participantCount, notes } = await request.json()
 
     if (!title || !activityType || !startDate) {
